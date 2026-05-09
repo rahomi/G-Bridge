@@ -6,17 +6,12 @@
 services:
   - type: web
     name: g-bridge-backend
-    repo: rahomi/G-Bridge
+    repo: https://github.com/rahomi/G-Bridge
     branch: main
     runtime: python
     plan: free
     buildCommand: ./build.sh
-    startCommand: gunicorn backend.wsgi:application --chdir backend
-    # Run database migrations and collectstatic before the service starts.
-    # Render supports a `preDeployCommand` which runs after build and before start.
-    preDeployCommand: |
-      python backend/manage.py migrate --noinput
-      python backend/manage.py collectstatic --noinput
+    startCommand: python backend/manage.py migrate --noinput && python backend/manage.py collectstatic --noinput && gunicorn backend.wsgi:application --chdir backend
     healthCheckPath: /api/health/
     envVars:
       - key: SECRET_KEY
@@ -44,7 +39,7 @@ services:
   - type: web
     runtime: static
     name: g-bridge-frontend
-    repo: rahomi/G-Bridge
+    repo: https://github.com/rahomi/G-Bridge
     branch: main
     rootDir: frontend
     buildCommand: npm ci && npm run build
