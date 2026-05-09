@@ -1,0 +1,56 @@
+# Render blueprint for G-Bridge
+# - Web service for Django backend
+# - Static site for React frontend
+# - Postgres database (free plan)
+
+services:
+  - type: web
+    name: g-bridge-backend
+    repo: rahomi/G-Bridge
+    branch: main
+    env: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn backend.wsgi:application --chdir backend
+    healthCheckPath: /api/health/
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ""
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
+      - key: REFRESH_TOKEN
+        sync: false
+      - key: GOOGLE_DRIVE_FOLDER_ID
+        sync: false
+      - key: FRONTEND_ORIGINS
+        value: ""
+      - key: CSRF_TRUSTED_ORIGINS
+        value: ""
+    autoDeploy: true
+
+staticSites:
+  - name: g-bridge-frontend
+    repo: rahomi/G-Bridge
+    branch: main
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: "https://<your-backend>.onrender.com"
+    autoDeploy: true
+
+databases:
+  - name: g-bridge-db
+    engine: postgresql
+    plan: free
+    # After creating the DB, Render will provide the DATABASE_URL
+    # which the backend service should use (set via Render dashboard or linked resource)
