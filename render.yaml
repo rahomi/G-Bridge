@@ -8,15 +8,13 @@ services:
     name: g-bridge-backend
     repo: rahomi/G-Bridge
     branch: main
-    env: python
+    runtime: python
     plan: free
     buildCommand: ./build.sh
     startCommand: gunicorn backend.wsgi:application --chdir backend
-    # Run database migrations and collectstatic before starting the web process.
-    # Render supports a `releaseCommand` which runs after the service is created
-    # and before the instance starts. This is a safer place to run one-time
-    # setup like migrations so the database is ready.
-    releaseCommand: |
+    # Run database migrations and collectstatic before the service starts.
+    # Render supports a `preDeployCommand` which runs after build and before start.
+    preDeployCommand: |
       python backend/manage.py migrate --noinput
       python backend/manage.py collectstatic --noinput
     healthCheckPath: /api/health/
@@ -44,14 +42,16 @@ services:
     autoDeploy: true
 
 staticSites:
-  - name: g-bridge-frontend
+  - type: web
+    runtime: static
+    name: g-bridge-frontend
     repo: rahomi/G-Bridge
     branch: main
     rootDir: frontend
     buildCommand: npm ci && npm run build
     # Vite outputs the built files to `dist` inside the `rootDir`.
-    # Keep `publishPath` relative to the `rootDir`.
-    publishPath: dist
+    # Keep `staticPublishPath` relative to the `rootDir`.
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         value: "https://<your-backend>.onrender.com"
@@ -59,7 +59,4 @@ staticSites:
 
 databases:
   - name: g-bridge-db
-    engine: postgresql
-    plan: free
-    # After creating the DB, Render will provide the DATABASE_URL
-    # which the backend service should use (set via Render dashboard or linked resource)
+    plan: basic-256mb
