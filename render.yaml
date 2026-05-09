@@ -41,7 +41,6 @@ services:
         value: ""
     autoDeploy: true
 
-staticSites:
   - type: web
     runtime: static
     name: g-bridge-frontend
