@@ -12,6 +12,13 @@ services:
     plan: free
     buildCommand: ./build.sh
     startCommand: gunicorn backend.wsgi:application --chdir backend
+    # Run database migrations and collectstatic before starting the web process.
+    # Render supports a `releaseCommand` which runs after the service is created
+    # and before the instance starts. This is a safer place to run one-time
+    # setup like migrations so the database is ready.
+    releaseCommand: |
+      python backend/manage.py migrate --noinput
+      python backend/manage.py collectstatic --noinput
     healthCheckPath: /api/health/
     envVars:
       - key: SECRET_KEY
@@ -42,7 +49,9 @@ staticSites:
     branch: main
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    publishPath: frontend/dist
+    # Vite outputs the built files to `dist` inside the `rootDir`.
+    # Keep `publishPath` relative to the `rootDir`.
+    publishPath: dist
     envVars:
       - key: VITE_API_URL
         value: "https://<your-backend>.onrender.com"
