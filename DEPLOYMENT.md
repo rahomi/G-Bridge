@@ -9,13 +9,13 @@ Render blueprint
 A `render.yaml` blueprint is included at the repository root. It defines:
 - A web service `g-bridge-backend` (Python) that uses `./build.sh` in the repo root to install backend dependencies and starts with Gunicorn. The `releaseCommand` runs database migrations and `collectstatic`.
 - A static site `g-bridge-frontend` that builds the frontend using `npm ci && npm run build` and publishes `dist` from the `frontend` directory.
-- A managed Postgres database `g-bridge-db`.
+ - No managed database is required by default; the project uses SQLite locally. You may provision a managed database and set `DATABASE_URL` if desired.
 
 Required environment variables
 ------------------------------
 Set these in the Render dashboard for the backend service (or mark as secrets via the UI):
 - SECRET_KEY (secret)
-- DATABASE_URL (secret) — Render will create this for you when you create the managed DB or you can provide your own DB URL.
+- DATABASE_URL (secret) — Optional. If you provide this, the service will use the specified database instead of the default SQLite file.
 - CLIENT_ID (secret) — Google OAuth client id used by the app.
 - CLIENT_SECRET (secret)
 - REFRESH_TOKEN (secret)
@@ -36,7 +36,7 @@ Steps to deploy on Render
 
 Notes & troubleshooting
 -----------------------
-- Database: The backend uses `dj-database-url` to parse `DATABASE_URL`. When Render creates the managed Postgres DB, it provides `DATABASE_URL` — link that DB to the backend service or paste the URL into the backend service env var.
+- Database: By default the project uses SQLite. If you provide a `DATABASE_URL`, ensure it points to a compatible database and migrations are run during deployment.
 - Static files: `whitenoise` is configured and `collectstatic` stores files in `staticfiles`.
 - Health check: `render.yaml` sets `healthCheckPath: /api/health/`. Ensure this endpoint exists and returns 200.
 - Local testing: You can run migrations and the dev server locally with `pip install -r backend/requirements.txt`, `python backend/manage.py migrate`, then `python backend/manage.py runserver`.

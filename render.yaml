@@ -20,8 +20,6 @@ services:
         value: "False"
       - key: ALLOWED_HOSTS
         value: ""
-      - key: DATABASE_URL
-        sync: false
       - key: CLIENT_ID
         sync: false
       - key: CLIENT_SECRET
@@ -51,6 +49,4 @@ services:
         value: "https://<your-backend>.onrender.com"
     autoDeploy: true
 
-databases:
-  - name: g-bridge-db
-    plan: basic-256mb
+# No managed database defined by default. The service will use SQLite unless you provide a DATABASE_URL.

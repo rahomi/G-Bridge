@@ -1,11 +1,11 @@
 # Drive Upload App
 
-A full-stack project with a Django + DRF backend and a React (Vite) frontend. The app uploads files to a specific Google Drive folder and stores metadata in PostgreSQL.
+A full-stack project with a Django + DRF backend and a React (Vite) frontend. The app uploads files to a specific Google Drive folder and stores metadata in a local SQLite database by default.
 
 ## ✅ Backend features
 - Django + DRF API endpoint for multipart uploads
 - Google Drive API v3 upload with environment-based OAuth
-- PostgreSQL configuration via `dj-database-url`
+- Database: uses SQLite locally. Optional `DATABASE_URL` environment variable is supported but Postgres is not required.
 - Render-ready setup with `gunicorn`, `whitenoise`, and `build.sh`
 
 ## ✅ Frontend features
@@ -56,17 +56,7 @@ Set `VITE_API_URL` in `frontend/.env` if your API URL differs (default `http://l
 gunicorn backend.wsgi:application --chdir backend
 ```
 
-### Render free Postgres
-Create a free PostgreSQL database in Render and copy the **Internal Database URL**. Then set:
-
-- `DATABASE_URL` in the Render service environment variables
-- `ALLOWED_HOSTS` to your Render hostname (comma-separated if needed)
-
-Example Render `DATABASE_URL` format:
-
-```text
-postgres://<user>:<password>@<host>:5432/<database>
-```
+If you deploy to a hosted provider, configure a database there if you prefer Postgres in production. The project runs fine using SQLite (default). When deploying, set `ALLOWED_HOSTS` to your host and `DEBUG=False`.
 
 ## API endpoint
 `POST /api/upload/` expects `multipart/form-data` with a `file` field. It returns the saved `DriveFile` record.

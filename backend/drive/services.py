@@ -71,3 +71,31 @@ def upload_file_to_drive(uploaded_file):
     ).execute()
 
     return created
+
+
+def replace_file_in_drive(google_drive_id, uploaded_file):
+    service = get_drive_service()
+    media = MediaIoBaseUpload(
+        io.BytesIO(uploaded_file.read()),
+        mimetype=uploaded_file.content_type,
+        resumable=True,
+    )
+    file_metadata = {"name": uploaded_file.name}
+
+    updated = (
+        service.files()
+        .update(
+            fileId=google_drive_id,
+            body=file_metadata,
+            media_body=media,
+            fields="id, name, webViewLink, webContentLink",
+        )
+        .execute()
+    )
+
+    return updated
+
+
+def delete_file_from_drive(google_drive_id):
+    service = get_drive_service()
+    service.files().delete(fileId=google_drive_id).execute()

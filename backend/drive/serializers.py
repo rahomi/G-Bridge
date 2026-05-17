@@ -8,6 +8,8 @@ class DriveFileSerializer(serializers.ModelSerializer):
         model = DriveFile
         fields = [
             "id",
+            "title",
+            "description",
             "file_name",
             "google_drive_id",
             "web_view_link",
